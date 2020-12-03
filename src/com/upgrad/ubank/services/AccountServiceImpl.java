@@ -1,7 +1,7 @@
 package com.upgrad.ubank.services;
 
-import com.upgrad.ubank.Account;
-import com.upgrad.ubank.Transaction;
+import com.upgrad.ubank.dtos.Account;
+import com.upgrad.ubank.dtos.Transaction;
 
 public class AccountServiceImpl implements AccountService {
     //Account array to store account objects for the application, later in the course
@@ -11,7 +11,9 @@ public class AccountServiceImpl implements AccountService {
     //counter is used to track how many accounts are present in the account array
     private int counter;
 
-    public AccountServiceImpl() {
+    private TransactionService transactionService;
+
+    public AccountServiceImpl(TransactionService transactionService) {
         accounts = new Account[100];
         counter = 0;
     }
@@ -49,13 +51,22 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Account deposit(int accountNo, int amount) {
-        return null;
+        Account account = getAccount(accountNo);
+        if(account==null){
+            return null;
+        }
+        account.setBalance(account.getBalance()+amount);
+
+        Transaction transaction = new Transaction();
+        transaction.setAccountNo(accountNo);
+        transaction.setDate("DD/MM/YYYY");
+        transaction.setAction("Deposit");
+        transaction.setAmount(amount);
+        System.out.println(transactionService.createTransaction(transaction));
+        return account;
+
     }
 
-    /*
-     * A account holder can overdraw up to 1000 rs. This decision was made on
-     * 13 July 2020. Please refer the business documents for more information.
-     */
     @Override
     public Account withdraw(int accountNo, int amount) {
         Account account = getAccount(accountNo);
@@ -72,7 +83,7 @@ public class AccountServiceImpl implements AccountService {
         transaction.setDate("DD/MM/YYYY");
         transaction.setAction("Withdraw");
         transaction.setAmount(amount);
-        System.out.println(transaction);
+        System.out.println(transactionService.createTransaction(transaction));
 
         return account;
     }
